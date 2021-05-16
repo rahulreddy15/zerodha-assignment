@@ -12,85 +12,22 @@ redis_instance = redis.StrictRedis(
     host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=0)
 
 
-@api_view(['GET', 'POST'])
-def manage_items(request, *args, **kwargs):
-    if request.method == "GET":
-        items = {}
+@api_view(['GET'])
+def stock_data(request):
+    if request.method == 'GET':
+        data = []
         count = 0
-        print(redis_instance.keys("*"))
         for key in redis_instance.keys("*"):
-            items[key.decode("utf-8")] = redis_instance.get(key)
-            count += 1
+            try:
+                data.append(
+                    {key.decode("utf-8"): json.loads(redis_instance.get(key))})
+                count += 1
+            except Exception as e:
+                print(e)
+                continue
         response = {
             "count": count,
             "msg": f"Found {count} items.",
-            "items": items
+            "data": data
         }
         return Response(response, status=200)
-    elif request.method == "POST":
-        item = json.loads(request.body)
-        key = list(item.keys())[0]
-        value = item[key]
-        redis_instance.set(key, value)
-        response = {
-            "msg": f"{key} successfully set to {value}"
-        }
-        return Response(response, 201)
-
-
-@api_view(['GET', 'PUT', 'DELETE'])
-def manage_item(request, *args, **kwargs):
-    if request.method == 'GET':
-        print(redis_instance.keys("*"))
-        if kwargs['key']:
-            value = redis_instance.get(kwargs['key'])
-            if value:
-                response = {
-                    'key': kwargs['key'],
-                    'value': value,
-                    'msg': 'success'
-                }
-                return Response(response, status=200)
-            else:
-                response = {
-                    'key': kwargs['key'],
-                    'value': None,
-                    'msg': 'Not found'
-                }
-                return Response(response, status=404)
-    elif request.method == 'PUT':
-        if kwargs['key']:
-            request_data = json.loads(request.body)
-            new_value = request_data['new_value']
-            value = redis_instance.get(kwargs['key'])
-            if value:
-                redis_instance.set(kwargs['key'], new_value)
-                response = {
-                    'key': kwargs['key'],
-                    'value': value,
-                    'msg': f"Successfully updated {kwargs['key']}"
-                }
-                return Response(response, status=200)
-            else:
-                response = {
-                    'key': kwargs['key'],
-                    'value': None,
-                    'msg': 'Not found'
-                }
-                return Response(response, status=404)
-
-    elif request.method == 'DELETE':
-        if kwargs['key']:
-            result = redis_instance.delete(kwargs['key'])
-            if result == 1:
-                response = {
-                    'msg': f"{kwargs['key']} successfully deleted"
-                }
-                return Response(response, status=404)
-            else:
-                response = {
-                    'key': kwargs['key'],
-                    'value': None,
-                    'msg': 'Not found'
-                }
-                return Response(response, status=404)

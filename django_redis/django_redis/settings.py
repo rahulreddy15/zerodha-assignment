@@ -133,5 +133,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Cron job to get the latest values
 CRONJOBS = [
-    ('*/2 * * * *', 'api.cron.update_redis_table_daily_stocks')
+    ('0 18-19 * * *', 'api.cron.update_redis_table_daily_stocks')
 ]

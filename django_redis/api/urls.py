@@ -1,9 +1,8 @@
 from django.urls import path
 from rest_framework.urlpatterns import format_suffix_patterns
-from .views import manage_items, manage_item
+from .views import stock_data
 
 urlpatterns = {
-    path('items', manage_items, name="items"),
-    path('items/<slug:key>', manage_item, name="single_item")
+    path('dailyData', stock_data, name="stock_data")
 }
 urlpatterns = format_suffix_patterns(urlpatterns)
