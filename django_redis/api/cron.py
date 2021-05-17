@@ -38,7 +38,6 @@ def update_redis_table_daily_stocks():
     print(URL)
     try:
         r = requests.get(URL, headers=headers)
-        print(r)
         z = ZipFile(BytesIO(r.content))
         z.extractall(path="CSV_FILES")
     except Exception as e:
