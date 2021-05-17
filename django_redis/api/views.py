@@ -20,14 +20,16 @@ def stock_data(request):
         for key in redis_instance.keys("*"):
             try:
                 data.append(
-                    {key.decode("utf-8"): json.loads(redis_instance.get(key))})
+                    json.loads(redis_instance.get(key)))
                 count += 1
             except Exception as e:
                 print(e)
                 continue
+        date = redis_instance.get("DATE")
         response = {
             "count": count,
             "msg": f"Found {count} items.",
+            "date": date,
             "data": data
         }
         return Response(response, status=200)

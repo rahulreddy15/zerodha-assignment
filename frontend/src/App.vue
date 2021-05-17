@@ -1,16 +1,15 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
   <Table />
 </template>
 
 <script>
-import Table from './components/Table'
+import Table from "./components/Table";
 export default {
-  name: 'App',
+  name: "App",
   components: {
-    Table
-  }
-}
+    Table,
+  },
+};
 </script>
 
 <style>

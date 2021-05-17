@@ -25,6 +25,12 @@ redis_instance = redis.StrictRedis(
 def update_redis_table_daily_stocks():
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y")
+    currentDate = dt_string
+    # GET LAST UPDATED DATE
+    # try:
+    #     lastUpdateDate = redis_instance.get("DATE")
+    # except Exception as e:
+    #     print(e)
     splitDate = dt_string.split("/")
     D, M, Y = splitDate[0], splitDate[1], splitDate[2][2:]
     date_url = D+M+Y
@@ -32,6 +38,7 @@ def update_redis_table_daily_stocks():
     print(URL)
     try:
         r = requests.get(URL, headers=headers)
+        print(r)
         z = ZipFile(BytesIO(r.content))
         z.extractall(path="CSV_FILES")
     except Exception as e:
@@ -45,8 +52,12 @@ def update_redis_table_daily_stocks():
                 key = rows["SC_CODE"]
                 data[key] = rows
         redis_instance.flushall()
+        redis_instance.set("DATE", currentDate)
         for row in data:
             print(row, data[row])
             redis_instance.set(row, json.dumps(data[row]))
     except Exception as e:
         print(e)
+
+
+update_redis_table_daily_stocks()
